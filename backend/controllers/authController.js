@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import crypto from 'crypto';
 
 export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -34,31 +33,53 @@ export const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    if (!user) return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+
+    // Cek apakah ada kode verifikasi yang masih valid
+    if (user.resetPasswordCode && user.resetPasswordExpires > Date.now()) {
+      console.log(`Existing reset code for ${email} is still valid: ${user.resetPasswordCode}`);
+      return res.json({ message: 'Kode verifikasi yang masih valid telah ditemukan.', resetCode: user.resetPasswordCode });
+    }
+
+    // Generate kode verifikasi 6 digit
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`Generated reset code for ${email}: ${resetCode}`);
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Kedaluwarsa dalam 10 menit
     await user.save();
-    res.json({ message: 'Reset token generated', resetToken });
+    console.log(`Saved reset code for ${email}: ${user.resetPasswordCode}, expires at ${user.resetPasswordExpires}`);
+
+    res.json({ message: 'Kode verifikasi telah dibuat.', resetCode });
   } catch (error) {
-    next(error);
+    console.error('Gagal membuat kode verifikasi:', error.message);
+    res.status(500).json({ message: 'Gagal membuat kode verifikasi. Silakan coba lagi nanti.' });
   }
 };
 
 export const resetPassword = async (req, res, next) => {
-  const { token, password } = req.body;
+  const { resetCode, password } = req.body;
   try {
+    console.log(`Received reset code: ${resetCode}, password: ${password}`);
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordCode: resetCode,
       resetPasswordExpires: { $gt: Date.now() },
     });
-    if (!user) return res.status(400).json({ message: 'Invalid or expired reset token' });
+
+    if (!user) {
+      console.log('No user found with matching reset code or code has expired');
+      return res.status(400).json({ message: 'Kode verifikasi tidak valid atau telah kedaluwarsa' });
+    }
+
+    console.log(`Found user: ${user.email}, resetting password`);
     user.password = password;
-    user.resetPasswordToken = undefined;
+    user.resetPasswordCode = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
-    res.json({ message: 'Password reset successfully' });
+    console.log(`Password reset successful for user ${user.email}`);
+
+    res.json({ message: 'Kata sandi berhasil diatur ulang' });
   } catch (error) {
-    next(error);
+    console.error('Gagal mengatur ulang kata sandi:', error.message);
+    res.status(500).json({ message: 'Gagal mengatur ulang kata sandi. Silakan coba lagi.' });
   }
 };

@@ -3,17 +3,16 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true, minlength: 6 },
-  resetPasswordToken: String,
-  resetPasswordExpires: Date,
-  createdAt: { type: Date, default: Date.now },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  resetPasswordCode: { type: String }, // Kode verifikasi untuk atur ulang kata sandi
+  resetPasswordExpires: { type: Date }, // Waktu kedaluwarsa kode
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   next();
 });
 

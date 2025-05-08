@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { resetPassword } from '../services/authService';
 
-// Animation variants (same as before)
+// Animation variants
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.9, y: 30 },
   visible: {
@@ -43,22 +43,35 @@ const buttonVariants = {
 };
 
 function ResetPasswordPage() {
-  const [token, setToken] = useState('');
+  const [resetCode, setResetCode] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
+
+  // Set default resetCode from query parameter if available
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code && !resetCode) {
+      setResetCode(code);
+    }
+  }, [searchParams, resetCode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!resetCode || !password) {
+      setError('Kode verifikasi dan kata sandi baru wajib diisi.');
+      return;
+    }
     try {
-      await resetPassword(token, password);
-      setMessage('Kata sandi telah direset. Silakan masuk.');
+      await resetPassword(resetCode, password);
+      setMessage('Kata sandi telah diatur ulang. Silakan masuk dengan kata sandi baru Anda.');
       setError('');
       setTimeout(() => {
-        window.location.href = '/login'; // Redirect after success
+        window.location.href = '/login';
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan. Coba lagi.');
+      setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
       setMessage('');
     }
   };
@@ -73,7 +86,7 @@ function ResetPasswordPage() {
             transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
             className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600"
           >
-            Reset Kata Sandi
+            Atur Ulang Kata Sandi
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: -10 }}
@@ -81,7 +94,7 @@ function ResetPasswordPage() {
             transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
             className="mt-2 text-sm text-gray-600"
           >
-            Masukkan token dan kata sandi baru Anda.
+            Masukkan kode verifikasi dan kata sandi baru Anda.
           </motion.p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -96,17 +109,17 @@ function ResetPasswordPage() {
             </motion.p>
           )}
           <motion.div variants={formElementVariants} custom={0} initial="hidden" animate="visible">
-            <label htmlFor="token" className="block text-sm font-medium text-gray-700">
-              Token Reset
+            <label htmlFor="resetCode" className="block text-sm font-medium text-gray-700">
+              Kode Verifikasi
             </label>
             <motion.input
               whileFocus={{ scale: 1.02, boxShadow: '0 0 8px rgba(29, 78, 216, 0.3)', transition: { duration: 0.3 } }}
-              id="token"
+              id="resetCode"
               type="text"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
+              value={resetCode}
+              onChange={(e) => setResetCode(e.target.value)}
               className="mt-1 block w-full px-4 py-3 bg-gray-50/50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300"
-              placeholder="Masukkan token dari halaman sebelumnya"
+              placeholder="Masukkan kode 6 digit"
               required
             />
           </motion.div>
@@ -125,8 +138,14 @@ function ResetPasswordPage() {
               required
             />
           </motion.div>
-          <motion.button variants={buttonVariants} whileHover="hover" whileTap="tap" type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300">
-            Reset Kata Sandi
+          <motion.button
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            type="submit"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300"
+          >
+            Atur Ulang Kata Sandi
           </motion.button>
         </form>
         <motion.p variants={formElementVariants} custom={2} initial="hidden" animate="visible" className="mt-4 text-center text-sm text-gray-600">
