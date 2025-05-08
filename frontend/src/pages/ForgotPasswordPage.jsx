@@ -77,7 +77,7 @@ function ForgotPasswordPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
-            className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600"
+            className="text-3xl font-extrabold text-blue-600 "
           >
             Pulihkan Kata Sandi
           </motion.h2>
@@ -85,7 +85,7 @@ function ForgotPasswordPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
-            className="mt-2 text-sm text-gray-600"
+            className="mt-2 text-sm text-gray-800"
           >
             Masukkan email Anda untuk mendapatkan kode verifikasi.
           </motion.p>
@@ -128,7 +128,7 @@ function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full px-4 py-3 bg-gray-50/50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300"
-              placeholder="contoh@retinascan.com"
+              placeholder="retinascan@gmail.com"
               required
             />
           </motion.div>
