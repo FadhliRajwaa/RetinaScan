@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Ubah ke named import
+import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
@@ -13,29 +13,26 @@ import Sidebar from './components/common/Sidebar';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State tetap di App.jsx
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Ambil token dari query parameter atau localStorage
       const query = new URLSearchParams(location.search);
       let token = query.get('token') || localStorage.getItem('token');
 
       if (token) {
         try {
-          // Verifikasi token
           const decoded = jwtDecode(token);
           if (decoded.exp * 1000 > Date.now()) {
-            localStorage.setItem('token', token); // Simpan token
+            localStorage.setItem('token', token);
             setIsAuthenticated(true);
 
-            // Periksa profil pengguna
             const response = await axios.get('http://localhost:5000/api/user/profile', {
               headers: { Authorization: `Bearer ${token}` },
             });
             const user = response.data;
-            // Anggap profil lengkap jika semua field terisi
             if (user.fullName && user.dateOfBirth && user.gender && user.phone && user.address) {
               setIsProfileComplete(true);
             }
@@ -52,13 +49,17 @@ function App() {
     checkAuth();
   }, [location]);
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Memuat...</div>;
   }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {isAuthenticated && <Sidebar />}
+      {isAuthenticated && <Sidebar toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
       <div className="flex-1">
         <Routes>
           <Route
@@ -66,7 +67,7 @@ function App() {
             element={
               isAuthenticated ? (
                 isProfileComplete ? (
-                  <Dashboard />
+                  <Dashboard toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />
                 ) : (
                   <Navigate to="/profile" />
                 )
