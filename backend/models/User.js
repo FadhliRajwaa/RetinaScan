@@ -5,8 +5,13 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  resetPasswordCode: { type: String }, // Kode verifikasi untuk atur ulang kata sandi
-  resetPasswordExpires: { type: Date }, // Waktu kedaluwarsa kode
+  fullName: { type: String },
+  dateOfBirth: { type: Date },
+  gender: { type: String, enum: ['male', 'female', ''] },
+  phone: { type: String },
+  address: { type: String },
+  resetPasswordCode: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 
 userSchema.pre('save', async function (next) {

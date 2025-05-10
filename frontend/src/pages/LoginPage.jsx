@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
 
 function LoginPage() {
@@ -7,13 +7,17 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login({ email, password });
-      alert('Login berhasil!');
+      const { token } = await login({ email, password });
+      // Simpan token di localStorage
+      localStorage.setItem('token', token);
+      // Arahkan ke dashboard dengan token sebagai query parameter
+      window.location.href = `http://localhost:3000?token=${token}`;
     } catch (err) {
       setError('Email atau kata sandi salah.');
     } finally {

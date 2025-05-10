@@ -9,7 +9,7 @@ export const register = async (userData) => {
 
 export const login = async (credentials) => {
   const response = await axios.post(`${API_URL}/auth/login`, credentials);
-  return response.data;
+  return response.data; // Pastikan mengembalikan { token, user }
 };
 
 export const forgotPassword = async (email) => {
