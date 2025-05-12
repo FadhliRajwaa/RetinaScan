@@ -1,135 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 import { register } from '../services/authService';
+import { HomeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'; // Perbarui ke v2
 
-// Animation variants for the card
+// Animation variants
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.95, y: 30 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.34, 1.56, 0.64, 1], // Custom cubic bezier for springy effect
-      delay: 0.2,
-    },
-  },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.7, ease: [0.34, 1.56, 0.64, 1], delay: 0.2 } },
 };
 
-// Animation variants for form elements
 const formElementVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1], // Custom cubic bezier for smooth entrance
-      delay: 0.3 + i * 0.1,
-    },
-  }),
+  visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 + i * 0.1 } }),
 };
 
-// Animation variants for error/success messages
 const messageVariants = {
   hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: 'easeOut',
-      type: 'spring',
-      stiffness: 200,
-      damping: 15,
-    },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.9,
-    transition: {
-      duration: 0.3,
-      ease: 'easeIn',
-    },
-  },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut', type: 'spring', stiffness: 200 } },
+  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.3, ease: 'easeIn' } },
 };
 
-// Animation variants for button
 const buttonVariants = {
-  initial: {
-    backgroundColor: '#2563EB', // blue-600
-  },
-  hover: {
-    scale: 1.05,
-    boxShadow: '0 6px 16px rgba(37, 99, 235, 0.4)',
-    backgroundColor: '#1D4ED8', // blue-700
-    transition: {
-      duration: 0.3,
-      ease: 'easeOut',
-    },
-  },
-  tap: {
-    scale: 0.95,
-    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-    transition: { duration: 0.15 },
-  },
-  loading: {
-    scale: 1,
-    backgroundColor: '#9CA3AF', // gray-400
-    transition: { duration: 0.2 },
-  },
+  initial: { backgroundColor: '#2563EB' },
+  hover: { scale: 1.05, boxShadow: '0 6px 16px rgba(37, 99, 235, 0.4)', backgroundColor: '#1D4ED8', transition: { duration: 0.3 } },
+  tap: { scale: 0.95, transition: { duration: 0.15 } },
+  loading: { scale: 1, backgroundColor: '#9CA3AF', transition: { duration: 0.2 } },
 };
 
-// Animation variants for input fields
 const inputVariants = {
-  focus: {
-    scale: 1.01,
-    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.3)',
-    borderColor: '#3B82F6',
-    transition: { duration: 0.3, ease: 'easeOut' },
-  },
-  blur: {
-    scale: 1,
-    boxShadow: 'none',
-    borderColor: '#D1D5DB',
-    transition: { duration: 0.2, ease: 'easeIn' },
-  },
-};
-
-// Animation variants for heading
-const headingVariants = {
-  hidden: { opacity: 0, y: -15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      delay: 0.3,
-      ease: 'easeOut',
-    },
-  },
-};
-
-// Animation variants for link
-const linkVariants = {
-  hover: {
-    color: '#1E40AF', // blue-800
-    transition: { duration: 0.2 },
-  },
-};
-
-// Animation for the line under the link
-const linkUnderlineVariants = {
-  hidden: { scaleX: 0 },
-  hover: {
-    scaleX: 1,
-    transition: {
-      duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
+  focus: { scale: 1.01, boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.3)', borderColor: '#3B82F6', transition: { duration: 0.3 } },
+  blur: { scale: 1, boxShadow: 'none', borderColor: '#D1D5DB', transition: { duration: 0.2 } },
 };
 
 function RegisterPage() {
@@ -139,8 +41,27 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          await axios.get('http://localhost:5000/api/user/profile', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setIsAuthenticated(true);
+        } catch (error) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -150,15 +71,51 @@ function RegisterPage() {
     try {
       await register({ name, email, password });
       setSuccess('Registrasi berhasil! Anda akan dialihkan ke halaman login.');
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500); // Delay to show success message
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Registrasi gagal. Email mungkin sudah digunakan.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    navigate('/register');
+  };
+
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
+        >
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Anda Sudah Login</h2>
+          <p className="text-center text-gray-600 mb-6">Silakan kembali ke beranda atau logout untuk mendaftar akun baru.</p>
+          <div className="space-y-4">
+            <Link
+              to="/"
+              className="flex items-center justify-center w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200"
+            >
+              <HomeIcon className="h-5 w-5 mr-2" />
+              Kembali ke Beranda
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
+            >
+              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> {/* Update ikon */}
+              Logout
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
@@ -168,18 +125,10 @@ function RegisterPage() {
         animate="visible"
         className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
       >
-        <motion.h2
-          variants={headingVariants}
-          initial="hidden"
-          animate="visible"
-          className="text-3xl font-bold text-center mb-8 text-gray-800"
-        >
-          Daftar ke RetinaScan
-        </motion.h2>
-
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Daftar ke RetinaScan</h2>
         {(error || success) && (
           <motion.p
-            key={error || success} // Force re-render for exit animation
+            key={error || success}
             variants={messageVariants}
             initial="hidden"
             animate="visible"
@@ -191,14 +140,8 @@ function RegisterPage() {
             {error || success}
           </motion.p>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
-          <motion.div
-            variants={formElementVariants}
-            custom={0}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div variants={formElementVariants} custom={0} initial="hidden" animate="visible">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Nama
             </label>
@@ -216,13 +159,7 @@ function RegisterPage() {
               required
             />
           </motion.div>
-
-          <motion.div
-            variants={formElementVariants}
-            custom={1}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div variants={formElementVariants} custom={1} initial="hidden" animate="visible">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
@@ -240,13 +177,7 @@ function RegisterPage() {
               required
             />
           </motion.div>
-
-          <motion.div
-            variants={formElementVariants}
-            custom={2}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div variants={formElementVariants} custom={2} initial="hidden" animate="visible">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Kata Sandi
             </label>
@@ -264,13 +195,7 @@ function RegisterPage() {
               required
             />
           </motion.div>
-
-          <motion.div
-            variants={formElementVariants}
-            custom={3}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div variants={formElementVariants} custom={3} initial="hidden" animate="visible">
             <motion.button
               type="submit"
               variants={buttonVariants}
@@ -311,7 +236,6 @@ function RegisterPage() {
             </motion.button>
           </motion.div>
         </form>
-
         <motion.p
           variants={formElementVariants}
           custom={4}
@@ -320,25 +244,9 @@ function RegisterPage() {
           className="mt-6 text-center text-gray-600"
         >
           Sudah punya akun?{' '}
-          <motion.span className="inline-block">
-            <Link
-              to="/login"
-              className="text-blue-600 font-medium relative overflow-hidden"
-            >
-              <motion.span
-                variants={linkVariants}
-                whileHover="hover"
-              >
-                Masuk
-              </motion.span>
-              <motion.span
-                variants={linkUnderlineVariants}
-                initial="hidden"
-                whileHover="hover"
-                className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 origin-left"
-              />
-            </Link>
-          </motion.span>
+          <Link to="/login" className="text-blue-600 font-medium hover:underline">
+            Masuk
+          </Link>
         </motion.p>
       </motion.div>
     </div>

@@ -1,22 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import axios from 'axios';
 import { login } from '../services/authService';
+import { HomeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'; // Perbarui ke v2
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          await axios.get('http://localhost:5000/api/user/profile', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setIsAuthenticated(true);
+        } catch (error) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
       const { token } = await login({ email, password });
-      // Simpan token di localStorage
       localStorage.setItem('token', token);
-      // Arahkan ke dashboard dengan token sebagai query parameter
       window.location.href = `http://localhost:3000?token=${token}`;
     } catch (err) {
       setError('Email atau kata sandi salah.');
@@ -25,14 +46,61 @@ function LoginPage() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
+
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
+        >
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Anda Sudah Login</h2>
+          <p className="text-center text-gray-600 mb-6">Silakan kembali ke beranda atau logout untuk masuk dengan akun lain.</p>
+          <div className="space-y-4">
+            <Link
+              to="/"
+              className="flex items-center justify-center w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200"
+            >
+              <HomeIcon className="h-5 w-5 mr-2" />
+              Kembali ke Beranda
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
+            >
+              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> {/* Update ikon */}
+              Logout
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
-      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl transform transition-all duration-300 animate-in">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
+      >
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Masuk ke RetinaScan</h2>
         {error && (
-          <p className="text-red-500 text-center mb-4 bg-red-50 p-3 rounded-lg animate-pulse">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-red-500 text-center mb-4 bg-red-50 p-3 rounded-lg"
+          >
             {error}
-          </p>
+          </motion.p>
         )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -63,11 +131,13 @@ function LoginPage() {
               placeholder="Masukkan kata sandi"
             />
           </div>
-          <button
+          <motion.button
             type="submit"
             disabled={isLoading}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className={`w-full py-3 rounded-lg text-white font-semibold transition-all duration-200 ${
-              isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+              isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
             {isLoading ? (
@@ -81,7 +151,7 @@ function LoginPage() {
             ) : (
               'Masuk'
             )}
-          </button>
+          </motion.button>
         </form>
         <div className="mt-6 text-center space-y-2">
           <p className="text-gray-600">
@@ -97,7 +167,7 @@ function LoginPage() {
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

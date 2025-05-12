@@ -17,35 +17,45 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAuth = async () => {
+  const checkAuth = async () => {
+    try {
       const query = new URLSearchParams(location.search);
       let token = query.get('token') || localStorage.getItem('token');
 
       if (token) {
-        try {
-          const decoded = jwtDecode(token);
-          if (decoded.exp * 1000 > Date.now()) {
-            localStorage.setItem('token', token);
-            setIsAuthenticated(true);
+        console.log('Token found:', token); // Debugging
+        const decoded = jwtDecode(token);
+        if (decoded.exp * 1000 > Date.now()) {
+          localStorage.setItem('token', token);
+          setIsAuthenticated(true);
 
-            const response = await axios.get('http://localhost:5000/api/user/profile', {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const user = response.data;
-            if (user.fullName && user.dateOfBirth && user.gender && user.phone && user.address) {
-              setIsProfileComplete(true);
-            }
-          } else {
-            localStorage.removeItem('token');
+          const response = await axios.get('http://localhost:5000/api/user/profile', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log('Profile response:', response.data); // Debugging
+          const user = response.data;
+          if (user.fullName && user.dateOfBirth && user.gender && user.phone && user.address) {
+            setIsProfileComplete(true);
           }
-        } catch (error) {
-          console.error('Auth error:', error);
+        } else {
+          console.log('Token expired'); // Debugging
           localStorage.removeItem('token');
+          setIsAuthenticated(false);
         }
+      } else {
+        console.log('No token found'); // Debugging
+        setIsAuthenticated(false);
       }
+    } catch (error) {
+      console.error('Auth error:', error); // Debugging
+      localStorage.removeItem('token');
+      setIsAuthenticated(false);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
+
+  useEffect(() => {
     checkAuth();
   }, [location]);
 
@@ -64,6 +74,11 @@ function App() {
     );
   }
 
+  if (!isAuthenticated) {
+    window.location.href = 'http://localhost:5173?logout=true';
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {isAuthenticated && <Sidebar toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
@@ -79,15 +94,30 @@ function App() {
                   <Navigate to="/profile" />
                 )
               ) : (
-                <Navigate to="http://localhost:5173/login" />
+                <Navigate to="http://localhost:5173?logout=true" />
               )
             }
           />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/upload" element={<UploadImagePage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/report" element={<ReportPage />} />
+          <Route
+            path="/profile"
+            element={<ProfilePage toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
+          />
+          <Route
+            path="/upload"
+            element={<UploadImagePage toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
+          />
+          <Route
+            path="/history"
+            element={<HistoryPage toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
+          />
+          <Route
+            path="/analysis"
+            element={<AnalysisPage toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
+          />
+          <Route
+            path="/report"
+            element={<ReportPage toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
+          />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
