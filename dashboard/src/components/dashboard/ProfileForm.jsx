@@ -50,7 +50,7 @@ function ProfileForm() {
       });
       setSuccess('Profil berhasil disimpan!');
       setError('');
-      setTimeout(() => navigate('/'), 1500); // Arahkan ke dashboard
+      setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       setError('Gagal menyimpan profil.');
       setSuccess('');
@@ -61,45 +61,55 @@ function ProfileForm() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto"
+      className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg max-w-md md:max-w-lg lg:max-w-2xl mx-2 sm:mx-auto"
     >
-      <h3 className="text-xl font-semibold mb-4">Lengkapi Profil Anda</h3>
+      <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-4 md:mb-6">Lengkapi Profil Anda</h3>
       {error && (
-        <p className="text-red-500 bg-red-50 p-3 rounded mb-4">{error}</p>
+        <p className="text-red-500 bg-red-50 p-2 sm:p-3 rounded mb-4 text-sm sm:text-base">
+          {error}
+        </p>
       )}
       {success && (
-        <p className="text-green-600 bg-green-50 p-3 rounded mb-4">{success}</p>
+        <p className="text-green-600 bg-green-50 p-2 sm:p-3 rounded mb-4 text-sm sm:text-base">
+          {success}
+        </p>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+            Nama Lengkap
+          </label>
           <input
             type="text"
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
-            className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 sm:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+            Tanggal Lahir
+          </label>
           <input
             type="date"
             name="dateOfBirth"
             value={formData.dateOfBirth}
             onChange={handleChange}
-            className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 sm:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+            Jenis Kelamin
+          </label>
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 sm:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             required
           >
             <option value="">Pilih</option>
@@ -108,29 +118,34 @@ function ProfileForm() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+            Nomor Telepon
+          </label>
           <input
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full p-2 sm:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Alamat</label>
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+            Alamat
+          </label>
           <textarea
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            rows={3}
+            className="mt-1 w-full p-2 sm:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             required
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base md:text-lg"
         >
           Simpan Profil
         </button>
