@@ -13,7 +13,7 @@ import Sidebar from './components/common/Sidebar';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State tetap di App.jsx
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
@@ -54,13 +54,20 @@ function App() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Memuat...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-700">Memuat...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       {isAuthenticated && <Sidebar toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />}
-      <div className="flex-1">
+      <div className="flex-1 overflow-x-hidden">
         <Routes>
           <Route
             path="/"

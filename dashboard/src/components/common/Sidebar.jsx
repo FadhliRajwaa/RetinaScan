@@ -17,11 +17,11 @@ function Sidebar({ toggleMobileMenu, isMobileMenuOpen }) {
 
   const sidebarVariants = {
     open: { 
-      width: '250px', 
+      width: '250px',
       transition: { duration: 0.3 } 
     },
     closed: { 
-      width: '80px', 
+      width: '80px',
       transition: { duration: 0.3 } 
     },
     mobileOpen: {
@@ -47,33 +47,31 @@ function Sidebar({ toggleMobileMenu, isMobileMenuOpen }) {
       )}
 
       {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <motion.aside
-          variants={sidebarVariants}
-          initial="mobileClosed"
-          animate="mobileOpen"
-          className="lg:hidden fixed top-0 left-0 h-screen bg-gradient-to-b from-blue-600 to-blue-800 text-white w-64 z-40 shadow-xl"
-        >
-          <div className="p-4 pt-16">
-            <h1 className="text-2xl font-bold">RetinaScan</h1>
-            <nav className="mt-6">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => toggleMobileMenu()}
-                  className={`flex items-center p-4 hover:bg-blue-700 transition-colors ${
-                    location.pathname === item.path ? 'bg-blue-900' : ''
-                  }`}
-                >
-                  <span className="text-xl mr-4">{item.icon}</span>
-                  <span>{item.name}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </motion.aside>
-      )}
+      <motion.aside
+        variants={sidebarVariants}
+        initial="mobileClosed"
+        animate={isMobileMenuOpen ? "mobileOpen" : "mobileClosed"}
+        className="lg:hidden fixed top-0 left-0 h-screen bg-gradient-to-b from-blue-600 to-blue-800 text-white w-64 z-40 shadow-xl"
+      >
+        <div className="p-4 pt-16">
+          <h1 className="text-xl sm:text-2xl font-bold">RetinaScan</h1>
+          <nav className="mt-6">
+            {menuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => toggleMobileMenu()}
+                className={`flex items-center p-3 sm:p-4 hover:bg-blue-700 transition-colors rounded ${
+                  location.pathname === item.path ? 'bg-blue-900' : ''
+                }`}
+              >
+                <span className="text-xl mr-3 sm:mr-4">{item.icon}</span>
+                <span className="text-sm sm:text-base">{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </motion.aside>
 
       {/* Desktop/Tablet Sidebar */}
       <motion.aside
@@ -81,28 +79,29 @@ function Sidebar({ toggleMobileMenu, isMobileMenuOpen }) {
         animate={isOpen ? 'open' : 'closed'}
         className="hidden lg:block bg-gradient-to-b from-blue-600 to-blue-800 text-white h-screen sticky top-0 shadow-xl"
       >
-        <div className="p-4 flex justify-between items-center">
+        <div className="p-3 sm:p-4 flex justify-between items-center">
           {isOpen && (
-            <h1 className="text-xl sm:text-2xl font-bold">RetinaScan</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">RetinaScan</h1>
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-full hover:bg-blue-700 transition-colors"
+            className="p-1 sm:p-2 rounded-full hover:bg-blue-700 transition-colors"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             {isOpen ? '←' : '→'}
           </button>
         </div>
-        <nav className="mt-6">
+        <nav className="mt-4 sm:mt-6">
           {menuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center p-4 hover:bg-blue-700 transition-colors ${
+              className={`flex items-center p-3 sm:p-4 hover:bg-blue-700 transition-colors rounded ${
                 location.pathname === item.path ? 'bg-blue-900' : ''
               }`}
             >
-              <span className="text-lg sm:text-xl mr-4">{item.icon}</span>
-              {isOpen && <span className="text-sm sm:text-base">{item.name}</span>}
+              <span className="text-lg sm:text-xl mr-3 sm:mr-4">{item.icon}</span>
+              {isOpen && <span className="text-xs sm:text-sm md:text-base">{item.name}</span>}
             </Link>
           ))}
         </nav>
