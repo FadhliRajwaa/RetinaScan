@@ -80,7 +80,7 @@ function History() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500">Keyakinan</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">Persentase</p>
                     <div className="flex items-center">
                       <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
                         <div 
