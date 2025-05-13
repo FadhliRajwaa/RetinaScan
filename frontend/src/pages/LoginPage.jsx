@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { login } from '../services/authService';
-import { HomeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'; // Perbarui ke v2
+import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,6 +11,7 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State untuk toggle show/hide password
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +76,7 @@ function LoginPage() {
               onClick={handleLogout}
               className="flex items-center justify-center w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
             >
-              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> {/* Update ikon */}
+              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
               Logout
             </button>
           </div>
@@ -121,15 +122,28 @@ function LoginPage() {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Kata Sandi
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              required
-              placeholder="Masukkan kata sandi"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 pr-10"
+                required
+                placeholder="Masukkan kata sandi"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
           <motion.button
             type="submit"

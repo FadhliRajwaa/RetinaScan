@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { register } from '../services/authService';
-import { HomeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'; // Perbarui ke v2
+import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 // Animation variants
 const cardVariants = {
@@ -43,6 +43,8 @@ function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
+  const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // State untuk toggle show/hide password
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,9 +67,18 @@ function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validasi password minimal 8 karakter
+    if (password.length < 8) {
+      setPasswordError('Kata sandi harus minimal 8 karakter');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     setSuccess('');
+    setPasswordError('');
+    
     try {
       await register({ name, email, password });
       setSuccess('Registrasi berhasil! Anda akan dialihkan ke halaman login.');
@@ -108,7 +119,7 @@ function RegisterPage() {
               onClick={handleLogout}
               className="flex items-center justify-center w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
             >
-              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> {/* Update ikon */}
+              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
               Logout
             </button>
           </div>
@@ -181,19 +192,48 @@ function RegisterPage() {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Kata Sandi
             </label>
-            <motion.input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              variants={inputVariants}
-              animate={focusedInput === 'password' ? 'focus' : 'blur'}
-              onFocus={() => setFocusedInput('password')}
-              onBlur={() => setFocusedInput(null)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none bg-gray-50/50 transition duration-200"
-              placeholder="Masukkan kata sandi"
-              required
-            />
+            <div className="relative">
+              <motion.input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (e.target.value.length >= 8) {
+                    setPasswordError('');
+                  }
+                }}
+                variants={inputVariants}
+                animate={focusedInput === 'password' ? 'focus' : 'blur'}
+                onFocus={() => setFocusedInput('password')}
+                onBlur={() => setFocusedInput(null)}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none bg-gray-50/50 transition duration-200 pr-10 ${
+                  passwordError ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Masukkan kata sandi"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            {passwordError && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-1 text-sm text-red-500"
+              >
+                {passwordError}
+              </motion.p>
+            )}
           </motion.div>
           <motion.div variants={formElementVariants} custom={3} initial="hidden" animate="visible">
             <motion.button

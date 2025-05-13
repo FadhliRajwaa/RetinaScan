@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { resetPassword } from '../services/authService';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 // Animation variants
 const cardVariants = {
@@ -47,6 +48,8 @@ function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState(''); // State untuk validasi password
+  const [showPassword, setShowPassword] = useState(false); // State untuk toggle show/hide password
   const [searchParams] = useSearchParams();
 
   // Set default resetCode from query parameter if available
@@ -59,14 +62,25 @@ function ResetPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validasi input
     if (!resetCode || !password) {
       setError('Kode verifikasi dan kata sandi baru wajib diisi.');
       return;
     }
+    
+    // Validasi password minimal 8 karakter
+    if (password.length < 8) {
+      setPasswordError('Kata sandi harus minimal 8 karakter');
+      return;
+    }
+
+    setError('');
+    setPasswordError('');
+    
     try {
       await resetPassword(resetCode, password);
       setMessage('Kata sandi telah diatur ulang. Silakan masuk dengan kata sandi baru Anda.');
-      setError('');
       setTimeout(() => {
         window.location.href = '/login';
       }, 1500);
@@ -127,16 +141,45 @@ function ResetPasswordPage() {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Kata Sandi Baru
             </label>
-            <motion.input
-              whileFocus={{ scale: 1.02, boxShadow: '0 0 8px rgba(29, 78, 216, 0.3)', transition: { duration: 0.3 } }}
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-3 bg-gray-50/50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300"
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <motion.input
+                whileFocus={{ scale: 1.02, boxShadow: '0 0 8px rgba(29, 78, 216, 0.3)', transition: { duration: 0.3 } }}
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (e.target.value.length >= 8) {
+                    setPasswordError('');
+                  }
+                }}
+                className={`mt-1 block w-full px-4 py-3 bg-gray-50/50 border rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 pr-10 ${
+                  passwordError ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Masukkan Kata Sandi Baru"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            {passwordError && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-1 text-sm text-red-500"
+              >
+                {passwordError}
+              </motion.p>
+            )}
           </motion.div>
           <motion.button
             variants={buttonVariants}
