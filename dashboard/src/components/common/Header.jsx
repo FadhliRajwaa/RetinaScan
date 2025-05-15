@@ -34,11 +34,6 @@ function Header({ title, toggleMobileMenu, isMobileMenuOpen }) {
 
   // Function to handle click explicitly
   const handleMenuClick = (e) => {
-    console.log('Menu button clicked'); // Debugging
-    console.log('toggleMobileMenu function exists:', typeof toggleMobileMenu === 'function');
-    console.log('isMobileMenuOpen current value:', isMobileMenuOpen);
-    console.log('Event object:', e);
-    
     // Prevent event bubbling
     e.stopPropagation();
     
@@ -55,9 +50,11 @@ function Header({ title, toggleMobileMenu, isMobileMenuOpen }) {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
-      className="bg-white shadow-lg backdrop-blur-sm bg-white/90 rounded-xl mx-2 sm:mx-4 md:mx-6 mb-6 p-3 sm:p-4 md:p-5 flex justify-between items-center sticky top-2 z-45"
+      className="mx-2 sm:mx-4 md:mx-6 mb-6 p-3 sm:p-4 md:p-5 flex justify-between items-center sticky top-2 z-45 rounded-xl"
       style={{
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+        background: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(8px)',
+        boxShadow: theme.mediumShadow,
         willChange: 'transform, opacity',
         transform: 'translateZ(0)'
       }}
@@ -71,7 +68,7 @@ function Header({ title, toggleMobileMenu, isMobileMenuOpen }) {
             boxShadow: '0 8px 15px -5px rgba(0, 0, 0, 0.1)'
           }}
           whileTap={{ scale: 0.95, rotate: -3 }}
-          className="w-12 h-12 rounded-xl bg-gradient-to-br mr-4 flex items-center justify-center shadow-md"
+          className="w-12 h-12 rounded-xl mr-4 flex items-center justify-center shadow-md"
           style={{ 
             background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`,
             boxShadow: `0 8px 12px -3px ${theme.primary}30`,
@@ -128,7 +125,7 @@ function Header({ title, toggleMobileMenu, isMobileMenuOpen }) {
           className="p-3 rounded-lg text-white shadow-md z-50"
           style={{ 
             background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`,
-            boxShadow: `0 4px 6px -1px ${theme.primary}40`,
+            boxShadow: theme.smallShadow,
             willChange: 'transform',
             transform: 'translateZ(0)',
             position: 'relative' // Ensure it's above other elements

@@ -63,14 +63,17 @@ function FeatureCard({ feature, index }) {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ 
         scale: 1.03, 
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        boxShadow: theme.largeShadow,
         y: -5
       }}
       whileTap={{ scale: 0.98 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={resetRadius}
-      className="relative bg-white p-6 rounded-xl shadow-md flex flex-col items-center text-center overflow-hidden"
-      style={{ backgroundImage: 'radial-gradient(circle at center, white, #f9fafb)' }}
+      className="relative bg-white p-6 rounded-xl flex flex-col items-center text-center overflow-hidden"
+      style={{ 
+        backgroundImage: 'radial-gradient(circle at center, white, #f9fafb)',
+        boxShadow: theme.mediumShadow
+      }}
     >
       <Link to={feature.path} className="absolute inset-0 z-10" aria-label={feature.title}></Link>
       <motion.div
@@ -112,12 +115,29 @@ function DashboardComponent() {
         animate="visible"
         className="mt-4"
       >
-        <motion.h2 
-          variants={animations.item}
-          className="text-2xl sm:text-3xl font-bold mb-8 text-center text-gray-800"
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          Selamat Datang di RetinaScan
-        </motion.h2>
+          <motion.h2 
+            className="text-2xl sm:text-3xl font-bold mb-3 text-gray-800"
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            Selamat Datang di RetinaScan
+          </motion.h2>
+          <motion.p
+            className="text-gray-600 max-w-3xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            Platform deteksi dini retinopati diabetik dengan teknologi AI canggih
+          </motion.p>
+        </motion.div>
         
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
@@ -125,6 +145,30 @@ function DashboardComponent() {
           {features.map((feature, index) => (
             <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}
+        </motion.div>
+        
+        <motion.div 
+          className="mt-12 bg-white p-6 rounded-xl"
+          style={{ boxShadow: theme.mediumShadow }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          <h3 className="text-xl font-bold mb-4 text-gray-800">Statistik Pengguna</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Total Analisis</p>
+              <p className="text-2xl font-bold" style={{ color: theme.primary }}>0</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Terakhir Aktivitas</p>
+              <p className="text-2xl font-bold" style={{ color: theme.accent }}>-</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Status Profil</p>
+              <p className="text-2xl font-bold" style={{ color: theme.secondary }}>Aktif</p>
+            </div>
+          </div>
         </motion.div>
       </motion.div>
     </div>

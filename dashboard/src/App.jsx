@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { AnimatePresence } from 'framer-motion';
@@ -18,6 +18,7 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [currentTitle, setCurrentTitle] = useState('Dashboard');
 
   // Update title based on current path
@@ -25,13 +26,23 @@ function App() {
     const path = location.pathname;
     console.log('Current path:', path);
     
-    if (path === '/') setCurrentTitle('Dashboard');
+    if (path === '/' || path === '/dashboard') setCurrentTitle('Dashboard');
     else if (path === '/profile') setCurrentTitle('Profile');
     else if (path === '/scan-retina') setCurrentTitle('Scan Retina');
     else if (path === '/history') setCurrentTitle('History');
     else if (path === '/analysis') setCurrentTitle('Analysis');
     else if (path === '/report') setCurrentTitle('Report');
   }, [location.pathname]);
+
+  // Handle token from URL query parameter
+  useEffect(() => {
+    const tokenFromURL = searchParams.get('token');
+    if (tokenFromURL) {
+      localStorage.setItem('token', tokenFromURL);
+      // Remove token from URL for security
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams]);
 
   const checkAuth = () => {
     const token = localStorage.getItem('token');
@@ -152,6 +163,7 @@ function App() {
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={isProfileComplete ? <Dashboard /> : <Navigate to="/profile" />} />
+            <Route path="/dashboard" element={isProfileComplete ? <Dashboard /> : <Navigate to="/profile" />} />
             <Route path="/profile" element={<ProfilePage updateProfileStatus={updateProfileStatus} />} />
             <Route path="/scan-retina" element={isProfileComplete ? <ScanRetinaPage /> : <Navigate to="/profile" />} />
             <Route path="/history" element={isProfileComplete ? <HistoryPage /> : <Navigate to="/profile" />} />
