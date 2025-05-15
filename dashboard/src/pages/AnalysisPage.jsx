@@ -1,10 +1,9 @@
-import Header from '../components/common/Header';
 import Analysis from '../components/dashboard/Analysis';
+import { withPageTransition } from '../context/ThemeContext';
 
-function AnalysisPage({ toggleMobileMenu, isMobileMenuOpen }) {
+function AnalysisPageComponent() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <Header title="Analisis AI" toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />
       <div className="mt-6">
         <Analysis />
       </div>
@@ -12,4 +11,5 @@ function AnalysisPage({ toggleMobileMenu, isMobileMenuOpen }) {
   );
 }
 
+const AnalysisPage = withPageTransition(AnalysisPageComponent);
 export default AnalysisPage;

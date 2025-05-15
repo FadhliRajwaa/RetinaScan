@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function ProfileForm() {
+function ProfileForm({ onProfileComplete }) {
   const [formData, setFormData] = useState({
     fullName: '',
     dateOfBirth: '',
@@ -50,6 +50,12 @@ function ProfileForm() {
       });
       setSuccess('Profil berhasil disimpan!');
       setError('');
+      
+      // Update profile complete status
+      if (onProfileComplete) {
+        onProfileComplete();
+      }
+      
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       setError('Gagal menyimpan profil.');

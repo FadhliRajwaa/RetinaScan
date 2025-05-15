@@ -1,10 +1,9 @@
-import Header from '../components/common/Header';
 import History from '../components/dashboard/History';
+import { withPageTransition } from '../context/ThemeContext';
 
-function HistoryPage({ toggleMobileMenu, isMobileMenuOpen }) {
+function HistoryPageComponent() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <Header title="Riwayat Analisis" toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />
       <div className="mt-6">
         <History />
       </div>
@@ -12,4 +11,5 @@ function HistoryPage({ toggleMobileMenu, isMobileMenuOpen }) {
   );
 }
 
+const HistoryPage = withPageTransition(HistoryPageComponent);
 export default HistoryPage;

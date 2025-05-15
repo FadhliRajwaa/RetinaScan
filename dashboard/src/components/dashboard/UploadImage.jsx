@@ -1,17 +1,30 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { uploadImage } from '../../services/api';
 
-function UploadImage() {
+function UploadImage({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
+    processFile(selectedFile);
+  };
+
+  const processFile = (selectedFile) => {
     if (selectedFile && ['image/jpeg', 'image/png'].includes(selectedFile.type)) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        setError('Ukuran file terlalu besar (maks. 5MB).');
+        setFile(null);
+        setPreview(null);
+        return;
+      }
+      
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
       setError('');
@@ -23,6 +36,28 @@ function UploadImage() {
     }
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
@@ -30,18 +65,22 @@ function UploadImage() {
       return;
     }
     
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setError('Ukuran file terlalu besar (maks. 5MB).');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append('image', file);
       const response = await uploadImage(formData);
-      setSuccess(`Gambar berhasil diunggah! Hasil: ${response.prediction || 'Tidak ada prediksi'}`);
+      setSuccess(`Gambar berhasil diunggah!`);
       setError('');
+      
+      // Call the callback function if provided
+      if (onUploadSuccess) {
+        onUploadSuccess({
+          file,
+          preview: preview,
+          response
+        });
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Gagal mengunggah gambar. Coba lagi.');
       setSuccess('');
@@ -50,43 +89,95 @@ function UploadImage() {
     }
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', damping: 12 }
+    }
+  };
+
+  const dropzoneVariants = {
+    default: { 
+      borderColor: 'rgba(209, 213, 219, 1)',
+      scale: 1
+    },
+    dragging: { 
+      borderColor: 'rgba(59, 130, 246, 1)',
+      scale: 1.02,
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+    }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto"
     >
-      <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-4 sm:mb-6">
-        Unggah Citra Fundus
-      </h3>
-      
-      {error && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-red-500 bg-red-50 p-3 rounded-lg mb-4 text-sm sm:text-base"
-        >
-          {error}
-        </motion.div>
-      )}
-      
-      {success && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-green-600 bg-green-50 p-3 rounded-lg mb-4 text-sm sm:text-base"
-        >
-          {success}
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="text-red-500 bg-red-50 p-3 rounded-lg mb-4 text-sm sm:text-base flex items-start"
+          >
+            <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </motion.div>
+        )}
+        
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="text-green-600 bg-green-50 p-3 rounded-lg mb-4 text-sm sm:text-base flex items-start"
+          >
+            <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>{success}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        <div className="space-y-2">
-          <label className="block text-sm sm:text-base font-medium text-gray-700">
-            Pilih File Gambar
-          </label>
-          <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors">
+        <motion.div 
+          variants={itemVariants}
+          className="space-y-2"
+        >
+          <motion.div
+            variants={dropzoneVariants}
+            initial="default"
+            animate={isDragging ? "dragging" : "default"}
+            className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 transition-colors ${
+              isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current.click()}
+          >
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png"
               onChange={handleFileChange}
@@ -94,81 +185,107 @@ function UploadImage() {
               disabled={isLoading}
             />
             <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <motion.div 
+                animate={{ 
+                  y: [0, -8, 0],
+                  transition: { 
+                    repeat: Infinity, 
+                    duration: 2.5,
+                    repeatType: "reverse", 
+                    ease: "easeInOut" 
+                  }
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <p className="mt-1 text-sm sm:text-base text-gray-600">
-                {file ? file.name : 'Seret atau klik untuk memilih gambar'}
-              </p>
-              <p className="mt-1 text-xs text-gray-500">
+                <svg
+                  className="mx-auto h-16 w-16 text-blue-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              </motion.div>
+              <motion.p 
+                className="mt-4 text-sm sm:text-base font-medium text-gray-700"
+                variants={itemVariants}
+              >
+                {file ? file.name : 'Seret gambar atau klik untuk memilih'}
+              </motion.p>
+              <motion.p 
+                className="mt-2 text-xs text-gray-500"
+                variants={itemVariants}
+              >
                 Format: JPEG/PNG (maks. 5MB)
-              </p>
+              </motion.p>
             </div>
-          </div>
-        </div>
-
-        {preview && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="relative"
-          >
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-full h-48 sm:h-64 md:h-72 object-contain rounded-lg border border-gray-200"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                setFile(null);
-              }}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-              disabled={isLoading}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
           </motion.div>
-        )}
+        </motion.div>
 
-        <button
+        <AnimatePresence>
+          {preview && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="relative rounded-xl overflow-hidden"
+            >
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full h-48 sm:h-64 md:h-72 object-contain bg-black/5 rounded-lg"
+              />
+              <motion.button
+                type="button"
+                onClick={() => {
+                  setPreview(null);
+                  setFile(null);
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                disabled={isLoading}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          variants={itemVariants}
           type="submit"
           disabled={isLoading || !file}
-          className={`w-full py-2 sm:py-3 rounded-lg text-white font-medium flex items-center justify-center ${
+          className={`w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all shadow-md ${
             isLoading
               ? 'bg-blue-400'
               : !file
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          } transition-colors`}
+              : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+          }`}
+          whileHover={!isLoading && file ? { scale: 1.02, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" } : {}}
+          whileTap={!isLoading && file ? { scale: 0.98 } : {}}
         >
           {isLoading ? (
             <>
               <svg
-                className="animate-spin -ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white"
+                className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -192,7 +309,7 @@ function UploadImage() {
           ) : (
             'Unggah Citra'
           )}
-        </button>
+        </motion.button>
       </form>
     </motion.div>
   );

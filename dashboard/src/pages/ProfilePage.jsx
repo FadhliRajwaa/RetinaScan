@@ -1,15 +1,15 @@
-import Header from '../components/common/Header';
 import ProfileForm from '../components/dashboard/ProfileForm';
+import { withPageTransition } from '../context/ThemeContext';
 
-function ProfilePage({ toggleMobileMenu, isMobileMenuOpen }) {
+function ProfilePageComponent({ updateProfileStatus }) {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <Header title="Profil Pengguna" toggleMobileMenu={toggleMobileMenu} isMobileMenuOpen={isMobileMenuOpen} />
       <div className="mt-6">
-        <ProfileForm />
+        <ProfileForm onProfileComplete={updateProfileStatus} />
       </div>
     </div>
   );
 }
 
+const ProfilePage = withPageTransition(ProfilePageComponent);
 export default ProfilePage;
