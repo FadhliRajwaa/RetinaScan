@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🔬 RetinaScan - Sistem Deteksi Retinopati Diabetik
 
 <div align="center">
@@ -91,14 +92,56 @@ Sistem ini terdiri dari beberapa komponen utama:
    ```
 
 2. **Setup Backend**
+=======
+# RetinaScan - Sistem Deteksi Retinopati Diabetik
+
+RetinaScan adalah aplikasi untuk analisis gambar retina menggunakan model AI untuk mendeteksi tingkat keparahan retinopati diabetik.
+
+## Arsitektur Sistem
+
+Sistem ini terdiri dari beberapa komponen utama:
+
+1. **Backend Express (NodeJS)**
+   - Menangani autentikasi dan manajemen pengguna
+   - Mengirim gambar ke layanan Flask
+   - Menyimpan hasil ke MongoDB
+
+2. **Layanan Flask (Python)**
+   - Memuat model H5 untuk analisis gambar retina
+   - Memproses gambar dan melakukan prediksi
+
+3. **Frontend (React)**
+   - Antarmuka untuk upload gambar dan melihat hasil
+   - Menampilkan riwayat analisis
+
+4. **Database (MongoDB)**
+   - Menyimpan data pengguna dan hasil analisis
+
+## Cara Penggunaan
+
+### Persyaratan
+- Node.js
+- Python 3.8+
+- MongoDB
+
+### Setup dan Menjalankan Aplikasi
+
+1. **Setup Backend**
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d
    ```bash
    cd backend
    npm install
    ```
 
+<<<<<<< HEAD
 3. **Setup Flask Service**
    ```bash
    cd backend/retinascan-api
+=======
+2. **Setup Flask Service**
+   ```bash
+   cd backend/flask_service
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d
    python -m venv venv
    source venv/Scripts/activate  # Windows
    # atau
@@ -106,12 +149,17 @@ Sistem ini terdiri dari beberapa komponen utama:
    pip install -r requirements.txt
    ```
 
+<<<<<<< HEAD
 4. **Setup Frontend**
+=======
+3. **Setup Frontend**
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d
    ```bash
    cd frontend
    npm install
    ```
 
+<<<<<<< HEAD
 5. **Setup Dashboard**
    ```bash
    cd dashboard
@@ -119,6 +167,9 @@ Sistem ini terdiri dari beberapa komponen utama:
    ```
 
 6. **Menjalankan Aplikasi (Windows)**
+=======
+4. **Menjalankan Aplikasi (Windows)**
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d
    ```bash
    cd backend
    start-services.bat
@@ -131,12 +182,17 @@ Sistem ini terdiri dari beberapa komponen utama:
    ./start-services.sh
    ```
 
+<<<<<<< HEAD
 7. Di terminal terpisah, jalankan frontend:
+=======
+5. Di terminal terpisah, jalankan frontend:
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d
    ```bash
    cd frontend
    npm run dev
    ```
 
+<<<<<<< HEAD
 8. Di terminal terpisah lainnya, jalankan dashboard:
    ```bash
    cd dashboard
@@ -332,3 +388,13 @@ Aplikasi ini siap di-deploy ke Render.com dengan konfigurasi berikut:
     <a href="fadhlirajwaarahmana@gmail.com">Contact</a>
   </p>
 </div> 
+=======
+6. Buka aplikasi di browser: http://localhost:5173
+
+## Fitur Utama
+
+- Upload gambar retina
+- Analisis tingkat keparahan retinopati diabetik
+- Riwayat pemindaian
+- Autentikasi dan manajemen pengguna 
+>>>>>>> 45ed769d3917a42f8fa57b6cf4ba07293950867d

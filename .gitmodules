@@ -1,0 +1,9 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/FadhliRajwaa/RetinaScan-Frontend.git
+[submodule "dashboard"]
+	path = dashboard
+	url = https://github.com/FadhliRajwaa/RetinaScan-Dashboard.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/FadhliRajwaa/RetinaScan-Backend.git
