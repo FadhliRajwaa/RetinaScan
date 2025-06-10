@@ -271,7 +271,7 @@ Script ini akan mencoba terhubung ke semua URL Flask API yang mungkin dan member
 1. **Flask API Tidak Berjalan**
    
    Pastikan Flask API berjalan di salah satu endpoint berikut:
-   - https://flask-service-4ifc.onrender.com (Render production)
+   - https://huggingface.co/spaces/[username]/retinascan-api (HuggingFace production)
    - http://localhost:5001 (Local development)
 
 2. **Mode Simulasi**
@@ -301,16 +301,26 @@ Aplikasi ini siap di-deploy ke Render.com dengan konfigurasi berikut:
    - Start Command: `node app.js`
    - Environment Variables: Lihat bagian Setup Backend
 
-2. **Flask API**
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn app:app --log-level info --timeout 300 --workers 1 --threads 2 --max-requests 3 --max-requests-jitter 2 --access-logfile - --error-logfile - --keep-alive 5 --preload`
+2. **Flask API (HuggingFace Spaces)**
+   - Deployment ke HuggingFace Spaces menggunakan Docker SDK
+   - Konfigurasi di file `backend/retinascan-api/README.md`:
+     ```
+     title: Retinascan API
+     emoji: 🔥
+     colorFrom: gray
+     colorTo: red
+     sdk: docker
+     pinned: false
+     license: mit
+     ```
+   - Model machine learning akan dihosting di HuggingFace untuk kemudahan akses dan skalabilitas
+   - URL API: Sesuaikan dengan URL HuggingFace Space yang dibuat
    - Environment Variables:
      ```
      PYTHON_VERSION=3.9.16
      TF_CPP_MIN_LOG_LEVEL=3
      TF_FORCE_GPU_ALLOW_GROWTH=true
      PYTHONUNBUFFERED=true
-     MONGO_URI=mongodb+srv://username:password@cluster0.example.mongodb.net/RetinaScan
      ```
 
 3. **Frontend & Dashboard**
