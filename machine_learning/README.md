@@ -135,7 +135,15 @@ retinascan-api/
 
 ## 🤖 Model Machine Learning
 
-API ini menggunakan model Convolutional Neural Network (CNN) yang dilatih dengan dataset gambar retina untuk mendeteksi tingkat keparahan retinopati diabetik. Model ini mengklasifikasikan gambar ke dalam 5 kategori:
+API ini menggunakan model Convolutional Neural Network (CNN) dengan  transfer learning DenseNet201 yang dilatih dengan dataset gambar retina untuk mendeteksi tingkat keparahan retinopati diabetik.
+Alasan Penggunaan DenseNet201
+- Akurasi Tinggi: Cocok untuk klasifikasi citra medis seperti retina.
+- Transfer Learning: Memanfaatkan model pre-trained untuk efisiensi pelatihan.
+- Dense Connections: Aliran informasi lebih baik, menghindari vanishing gradient.
+- Deteksi Detail Kecil: Mampu menangkap ciri-ciri halus retinopati diabetik.
+- Efisien: Lebih ringan dan cepat dibanding model deep CNN lain.
+
+Model ini mengklasifikasikan gambar ke dalam 5 kategori:
 
 - **Kelas 0**: Normal
 - **Kelas 1**: Mild NPDR (Non-Proliferative Diabetic Retinopathy)
@@ -154,7 +162,24 @@ Sebelum dianalisis oleh model, gambar melalui beberapa tahap preprocessing:
 
 ### Akurasi Model
 
-Model ini memiliki akurasi sekitar 85% pada dataset pengujian. Performa model bervariasi tergantung pada kualitas gambar dan jenis kamera yang digunakan untuk mengambil gambar retina.
+Model ini memiliki akurasi sekitar 94% pada dataset pengujian. Performa model bervariasi tergantung pada kualitas gambar dan jenis kamera yang digunakan untuk mengambil gambar retina.
+![adb0924c-a60f-43dd-9448-62b84e41d087](https://github.com/user-attachments/assets/cfae9556-db7b-41c8-a545-dff038e32b08)
+![11c1d5b5-854d-47ad-8268-ac674b0aed48](https://github.com/user-attachments/assets/0d3d68d3-d683-4959-a5f0-aae5b23c5f83)
+
+ precision    recall  f1-score   support
+
+          Mild       0.91      0.96      0.93       349
+      Moderate       0.93      0.85      0.89       295
+         No_DR       1.00      0.99      1.00       343
+Proliferate_DR       0.94      0.92      0.93       326
+        Severe       0.93      0.98      0.95       356
+
+      accuracy                           0.94      1669
+     macro avg       0.94      0.94      0.94      1669
+  weighted avg       0.94      0.94      0.94      1669
+
+![f512d7fd-504f-4894-9943-ee807df0a9d3](https://github.com/user-attachments/assets/786060f6-5a0b-4766-9eda-13ad30790931)
+
 
 ## 🚢 Deployment
 
